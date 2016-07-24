@@ -3,7 +3,9 @@ package com.esri.arcgisruntime.closestfeature;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
 import android.database.MatrixCursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,12 +17,14 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
 import android.provider.BaseColumns;
-import android.support.design.widget.FloatingActionButton;
+import android.speech.RecognizerIntent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -46,6 +50,7 @@ import com.esri.android.toolkit.map.MapViewHelper;
 import com.esri.core.geodatabase.GeodatabaseFeatureServiceTable;
 import com.esri.core.geometry.AngularUnit;
 import com.esri.core.geometry.Envelope;
+import com.esri.core.geometry.Geometry;
 import com.esri.core.geometry.GeometryEngine;
 import com.esri.core.geometry.MultiPath;
 import com.esri.core.geometry.Point;
@@ -86,98 +91,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.ExecutionException;
-import android.os.Handler;
-import android.app.ActionBar;
-import android.app.Activity;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.ProgressDialog;
-import android.content.ActivityNotFoundException;
-import android.content.Context;
-import android.content.Intent;
-import android.database.MatrixCursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.media.RingtoneManager;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-import android.provider.BaseColumns;
-import android.speech.RecognizerIntent;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
-import android.widget.SearchView;
-import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.esri.android.map.Callout;
-import com.esri.android.map.GraphicsLayer;
-import com.esri.android.map.LocationDisplayManager;
-import com.esri.android.map.MapOnTouchListener;
-import com.esri.android.map.MapView;
-import com.esri.android.map.ags.ArcGISTiledMapServiceLayer;
-import com.esri.android.map.event.OnSingleTapListener;
-import com.esri.android.map.event.OnStatusChangedListener;
-import com.esri.android.toolkit.map.MapViewHelper;
-import com.esri.core.geometry.AngularUnit;
-import com.esri.core.geometry.Envelope;
-import com.esri.core.geometry.GeometryEngine;
-import com.esri.core.geometry.MultiPath;
-import com.esri.core.geometry.Point;
-import com.esri.core.geometry.Polygon;
-import com.esri.core.geometry.Polyline;
-import com.esri.core.geometry.SpatialReference;
-import com.esri.core.geometry.Unit;
-import com.esri.core.io.UserCredentials;
-import com.esri.core.map.CallbackListener;
-import com.esri.core.map.Graphic;
-import com.esri.core.symbol.PictureMarkerSymbol;
-import com.esri.core.symbol.SimpleFillSymbol;
-import com.esri.core.symbol.SimpleLineSymbol;
-import com.esri.core.symbol.SimpleMarkerSymbol;
-import com.esri.core.symbol.TextSymbol;
-import com.esri.core.tasks.geocode.Locator;
-import com.esri.core.tasks.geocode.LocatorFindParameters;
-import com.esri.core.tasks.geocode.LocatorGeocodeResult;
-import com.esri.core.tasks.geocode.LocatorSuggestionParameters;
-import com.esri.core.tasks.geocode.LocatorSuggestionResult;
-import com.esri.core.tasks.na.NAFeaturesAsFeature;
-import com.esri.core.tasks.na.Route;
-import com.esri.core.tasks.na.RouteDirection;
-import com.esri.core.tasks.na.RouteParameters;
-import com.esri.core.tasks.na.RouteResult;
-import com.esri.core.tasks.na.RouteTask;
-import com.esri.core.tasks.na.StopGraphic;
-
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -514,6 +431,7 @@ public class MainActivity extends AppCompatActivity {
                     //mMapView.setExtent(mCurrentMapExtent);
                     mMapView.setExtent(new Envelope(sanDiegoCenter,10000,10000));
                     mapSpatialReference = mMapView.getSpatialReference();
+                    Log.d("SR",mapSpatialReference.toString());
                     mLocDispMgr = mMapView.getLocationDisplayManager();
                     mLocDispMgr.setAutoPanMode(LocationDisplayManager.AutoPanMode.LOCATION);
                     mLocDispMgr.setLocationListener(mLocationListener);
@@ -573,6 +491,7 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
     }
 
     private void setUpBufferAroundParking() {
+        Log.d("here","here");
         points.add(new Point(-117.15560782833943, 32.71139704391625));
         points.add(new Point(-117.15601027497712, 32.70421791518589));
         points.add(new Point(-117.16455252941577, 32.70395827219383));
@@ -591,6 +510,7 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
         simpleFillSymbol.setAlpha(1);
         Graphic graphic_polygon = new Graphic(polygon, (simpleFillSymbol));
         redZone.addGraphic(graphic_polygon);
+        save();
     }
 
     //Speech
@@ -849,10 +769,9 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
             String address = result.getAddress();
             Log.d(TAG + "currentPt",currentMapPt.toString());
             Log.d(TAG + "resultPt", destinationPoint.toString());
-
+            displaySearchResult(x, y, address);
             QueryDirections(currentMapPt, destinationPoint);
 
-            displaySearchResult(x, y, address);
             hideKeyboard();
         }
     }
@@ -1016,6 +935,7 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
 
         Log.d(TAG + "RouteResults", mResults.getRoutes().size() + "");
         curRoute = mResults.getRoutes().get(0);
+        clear();
         // Symbols for the route and the destination (blue line, checker flag)
         //SimpleLineSymbol routeSymbol = new SimpleLineSymbol(Color.BLUE, 3);
         PictureMarkerSymbol destinationSymbol = new PictureMarkerSymbol(
@@ -1033,11 +953,11 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
             attribs.put("length", Double.valueOf(rd.getLength()));
             Graphic routeGraphic = new Graphic(rd.getGeometry(), segmentHider,
                     attribs);
-            originalgraphicsLayer.addGraphic(routeGraphic);
+            //originalgraphicsLayer.addGraphic(routeGraphic);
             hiddenSegmentsLayer.addGraphic(routeGraphic);
         }
         // Reset the selected segment
-        selectedSegmentID = -1;
+        selectedSegmentID = 1;
 
         // Add the full route graphics, start and destination graphic to the
         // routeLayer
@@ -1048,16 +968,16 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
                         .getGeometry()).getPointCount() - 1), destinationSymbol);
         Log.d("Graphic",routeGraphic.getGeometry().getType().name());
         Log.d("Graphic",routeGraphic.toString());
-        originalgraphicsLayer.addGraphic(endGraphic);
+        //originalgraphicsLayer.addGraphic(endGraphic);
         routeLayer.addGraphics(new Graphic[]{routeGraphic, endGraphic});
         //originalgraphicsLayer = new GraphicsLayer();
         //mMapView.addLayer(originalgraphicsLayer);
 
 
-        originalgraphicsLayer.addGraphic(new Graphic(curRoute.getRouteGraphic().getGeometry(), routeSymbol));
+        //originalgraphicsLayer.addGraphic(new Graphic(curRoute.getRouteGraphic().getGeometry(), routeSymbol));
 
-        /*graphicsLayer.addGraphic(new Graphic(curRoute.getRouteGraphic().getGeometry(), routeSymbol));
-        mMapView.addLayer(graphicsLayer);*/
+        graphicsLayer.addGraphic(new Graphic(curRoute.getRouteGraphic().getGeometry(), routeSymbol));
+        /*mMapView.addLayer(graphicsLayer);*/
         // Get the full route summary and set it as our current label
         routeSummary = String.format("%s%n%.1f minutes (%.1f miles)",
                 curRoute.getRouteName(), curRoute.getTotalMinutes(),
@@ -1287,9 +1207,10 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
     }
 
     public void clear() {
-        if (graphicsLayer != null) {
+        /*if (graphicsLayer != null) {
             graphicsLayer.removeAll();
-        }
+        }*/
+
 
         if (redZone != null) {
             redZone.removeAll();
@@ -1685,32 +1606,26 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
                 // Iterate the results and select each feature.
                 for (Object objFeature : objs) {
                     Feature feature = (Feature) objFeature;
-                    String val = String.valueOf(feature.getAttributeValue("isAvailable"));
+                    String val = String.valueOf(feature.getAttributeValue("IsAvailable"));
                     Log.d("val-",val);
                     if(val.equalsIgnoreCase("true")) {
                         featureLayer.selectFeature(feature.getId());
                         Log.d("geometry-",feature.getGeometry().getDimension()+"");
+                        Log.d("geometry-",feature.getGeometry()+"");
                         trueFeatures.add(feature);
                     }
 
                 }
-                /*Graphic[] facilityGraphics = new Graphic[trueFeatures.size()];
+
+                Graphic[] facilityGraphics = new Graphic[trueFeatures.size()];
                 int i = 0;
                 for(Feature f : trueFeatures) {
+                    Geometry g = f.getGeometry();
                     facilityGraphics[i] = new Graphic(f.getGeometry(),availableParkingSymbol);
+                    //facilityGraphics[i] = new Graphic(GeometryEngine.project(f,availableParkingSymbol);
                     i++;
                 }
-                Log.d("count-",i+"");*/
-                //Log.d("count-",i+"");*/
-                Graphic[] facilityGraphics = {
-                        new Graphic(GeometryEngine.project(-117.138368, 32.708657, mMapView.getSpatialReference()), availableParkingSymbol),
-                        new Graphic(GeometryEngine.project(-117.163369, 32.724766, mMapView.getSpatialReference()), notAvailableParkingSymbol),
-                        new Graphic(GeometryEngine.project(-117.159477, 32.735328, mMapView.getSpatialReference()), availableParkingSymbol),
-                        new Graphic(GeometryEngine.project(-117.159918, 32.751387, mMapView.getSpatialReference()), notAvailableParkingSymbol),
-                        new Graphic(GeometryEngine.project(-117.144708, 32.755919, mMapView.getSpatialReference()), availableParkingSymbol),
-                        new Graphic(GeometryEngine.project(-117.201550, 32.752967, mMapView.getSpatialReference()), notAvailableParkingSymbol),
-                        new Graphic(GeometryEngine.project(-117.221417, 32.748656, mMapView.getSpatialReference()), availableParkingSymbol)
-                };
+                Log.d("count-",i+"");
 
                 // add them to the graphics layer for display and to our 'facilities' collection for the task
                 originalgraphicsLayer.addGraphics(facilityGraphics);
