@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">ClosestFeature</string>
-    <string name="feature_service_url">http://supt001987.esri.com:6080/arcgis/rest/services/FinalSandiegoParking/FeatureServer/0</string>
+    <string name="feature_service_url">http://supt001987.esri.com:6080/arcgis/rest/services/FinalSandiegoParking/FeatureServer</string>
+
+    <string name="parking_field_name">isAvailable</string>
+    <string name="suggestion_text">Suggestion</string>
+    <string name="addressSearchFailed">Address search failed</string>
+    <string name="noResultsFound">No Results found!!</string>
+    <string name="address_search">Address Search</string>
 </resources>
