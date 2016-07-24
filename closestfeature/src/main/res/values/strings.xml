@@ -5,8 +5,24 @@
 
 
     <string name="parking_field_name">isAvailable</string>
+
+    <string name="search_hint">Search address or place</string>
+    <string name="search_title">Search</string>
     <string name="suggestion_text">Suggestion</string>
+
+    <!-- progress dialog messages -->
+    <string name="address_search">Searching for Address</string>
+
+    <!-- Toast messages -->
     <string name="addressSearchFailed">Address search failed</string>
-    <string name="noResultsFound">No Results found!!</string>
-    <string name="address_search">Address Search</string>
+    <string name="noResultsFound">No Results found</string>
+    <string name="title_activity_flash_screen">FlashScreenActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+    <!--Speech strings -->
+    <string name="speech_prompt">Say something&#8230;</string>
+    <string name="speech_not_supported">Sorry! Your device doesn\'t support speech input</string>
+    <string name="tap_on_mic">Tap on mic to speak</string>
 </resources>
