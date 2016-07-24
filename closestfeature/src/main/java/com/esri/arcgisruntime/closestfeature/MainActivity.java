@@ -21,6 +21,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -38,6 +39,7 @@ import com.esri.android.map.MapOnTouchListener;
 import com.esri.android.map.MapView;
 import com.esri.android.map.ags.ArcGISFeatureLayer;
 import com.esri.android.map.ags.ArcGISTiledMapServiceLayer;
+import com.esri.android.map.event.OnLongPressListener;
 import com.esri.android.map.event.OnSingleTapListener;
 import com.esri.android.map.event.OnStatusChangedListener;
 import com.esri.android.toolkit.map.MapViewHelper;
@@ -211,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
         FEATURE_SERVICE_URL = getResources().getString(R.string.feature_service_url);
         // Set the Esri logo to be visible, and enable map to wrap around date line.
         mMapView.setEsriLogoVisible(true);
-        mMapView.enableWrapAround(true);
+        mMapView.enableWrapAround(false);
         originalgraphicsLayer = new GraphicsLayer();
         mMapView.addLayer(originalgraphicsLayer);
         mMapViewHelper = new MapViewHelper(mMapView);
@@ -245,6 +247,8 @@ public class MainActivity extends AppCompatActivity {
             e1.printStackTrace();
         }
 
+        mLocator = Locator.createOnlineLocator();
+
         myListener = new MyTouchListener(MainActivity.this,
                 mMapView);
         mMapView.setOnTouchListener(myListener);
@@ -253,6 +257,7 @@ public class MainActivity extends AppCompatActivity {
         redZone = new GraphicsLayer();
         mMapView.addLayer(graphicsLayer);
         mMapView.addLayer(redZone);
+
         mSearchView = (SearchView)findViewById(R.id.searchView);
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -303,6 +308,8 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
+
         /*mFeatureServiceURL = this.getResources().getString(R.string.feature_service_url);
         // Add Feature layer to the MapView
         mFeatureLayer = new ArcGISFeatureLayer(mFeatureServiceURL, ArcGISFeatureLayer.MODE.ONDEMAND);
@@ -324,6 +331,30 @@ public class MainActivity extends AppCompatActivity {
         IS_SPOT_AVAILABLE = getResources().getString(R.string.parking_field_name);
         //setUpFeatureLayer();
         createFLfromURL();
+        //setUpBufferAroundParking();
+
+        mMapView.setOnLongPressListener(new OnLongPressListener() {
+            private static final long serialVersionUID = 1L;
+            @Override
+            public boolean onLongPress(float x, float y) {
+                final Point loc = mMapView.toMapPoint(x, y);
+                // create a graphic for facility
+                final SimpleMarkerSymbol sms = new SimpleMarkerSymbol(
+                        Color.BLACK, 13, SimpleMarkerSymbol.STYLE.DIAMOND);
+                // set start location
+                Point point = mMapView.toMapPoint(x, y);
+                // create graphic
+                final Graphic graphic = new Graphic(point, sms);
+                originalgraphicsLayer.addGraphic(graphic);
+                // set parameters graphic and query url
+                try {
+                    getClosestFacility(graphic);
+                } catch (Exception e) {
+                    Log.e("Error",e.toString());
+                }
+                return true;
+            }
+        });
 
 
 
@@ -387,28 +418,63 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (mLocDispMgr != null) {
                     // Re-enable the navigation mode.
-                    notifTimes = 0;
+
 
                     Toast.makeText(MainActivity.this,"I gotcha", Toast.LENGTH_SHORT).show();
                     mLocDispMgr.start();
                     mLocDispMgr.setAutoPanMode(LocationDisplayManager.AutoPanMode.LOCATION);
                     Graphic a = redZone.getGraphic(0);
                     Point point = mLocDispMgr.getPoint();
-                    mMapView.zoomTo(point,20);
+                    //mMapView.zoomTo(point,20);
                     Polygon buffer = GeometryEngine.buffer(point,SpatialReference.create(4326),0.0033,Unit.create(AngularUnit.Code.DEGREE));
                     if (redZone.getNumberOfGraphics () != 0)
                     {
                         if (GeometryEngine.intersects(buffer,redZone.getGraphic(redZone.getGraphicIDs()[0]).getGeometry(),SpatialReference.create(4326)))
                             if (notifTimes == 0) {
-
                                 notifTimes++;
-                                sendNotification("You are in Red Zone. Be Safe!!");
+
+                                final SimpleMarkerSymbol sms = new SimpleMarkerSymbol(
+                                        Color.BLACK, 13, SimpleMarkerSymbol.STYLE.DIAMOND);
+                                // set start location
+
+                                // create graphic
+                                final Graphic graphic = new Graphic(point, sms);
+                                originalgraphicsLayer.addGraphic(graphic);
+                                // set parameters graphic and query url
+                                try {
+                                    getClosestFacility(graphic);
+                                } catch (Exception e) {
+                                    Log.e("Error",e.toString());
+                                }
                             }
                     }
 
                 }
             }
         });
+    }
+
+    private void setUpBufferAroundParking() {
+        Log.d("here","here");
+        points.add(new Point(-117.15560782833943, 32.71139704391625));
+        points.add(new Point(-117.15601027497712, 32.70421791518589));
+        points.add(new Point(-117.16455252941577, 32.70395827219383));
+        points.add(new Point(-117.16476024380943, 32.711319151018635));
+
+        redZone.removeAll();
+        polygon = new Polygon();
+        polygon.startPath(points.get(0));
+        Log.d("pt1",points.get(0).toString());
+        for (int i = 1; i < points.size(); i++) {
+            polygon.lineTo(points.get(i));
+            Log.d("pt"+i,points.get(i).toString());
+        }
+        SimpleFillSymbol simpleFillSymbol = new SimpleFillSymbol(
+                Color.RED);
+        simpleFillSymbol.setAlpha(1);
+        Graphic graphic_polygon = new Graphic(polygon, (simpleFillSymbol));
+        redZone.addGraphic(graphic_polygon);
+        save();
     }
 
     public void onSearchButtonClicked(String address) {
@@ -582,13 +648,41 @@ public class MainActivity extends AppCompatActivity {
         // Add a marker at the found place. When tapping on the marker, a Callout with the address
         // will be displayed
         mMapViewHelper.addMarkerGraphic(y, x, LOCATION_TITLE, address, android.R.drawable.ic_menu_myplaces, null, false, 1);
-        mMapView.centerAndZoom(y, x, 14);
+        //mMapView.centerAndZoom(y, x, 14);
         mSearchView.setQuery(address, true);
         searchClickFlag = false;
         suggestClickFlag = false;
 
 
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        getMenuInflater().inflate(R.menu.redzone,menu);
+        return true;
+    }
+
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.drawRedZone:
+                draw_activated = true;
+                OfflineActions offlineActions = new OfflineActions(
+                        MainActivity.this);
+                startActionMode(offlineActions);
+                break;
+            case R.id.stopNotif:
+                mLocDispMgr.stop();
+
+            default:
+        }
+        return true;
+
+    }
+
 
     protected void getSuggestions(String suggestText) {
         final CallbackListener<List<LocatorSuggestionResult>> suggestCallback = new CallbackListener<List<LocatorSuggestionResult>>() {
@@ -1115,6 +1209,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onLocationChanged(Location location) {
             currentLocation.removeAll();
+            Log.d(TAG,"location changed");
             Point currentPt = new Point(location.getLongitude(), location.getLatitude());
             currentMapPt = (Point) GeometryEngine.project(currentPt,
                     SpatialReference.create(4326), mMapView.getSpatialReference());
@@ -1128,10 +1223,23 @@ public class MainActivity extends AppCompatActivity {
             if (redZone.getNumberOfGraphics () != 0)
             {
                 if (GeometryEngine.intersects(buffer,redZone.getGraphic(redZone.getGraphicIDs()[0]).getGeometry(),SpatialReference.create(4326)))
-                    if(notifTimes < 2)
+                    if(notifTimes == 0)
                     {
-                        sendNotification("You are in Red Zone. Be Safe!!");
                         notifTimes++;
+                        final SimpleMarkerSymbol sms = new SimpleMarkerSymbol(
+                                Color.BLACK, 13, SimpleMarkerSymbol.STYLE.DIAMOND);
+                        // set start location
+                        // create graphic
+                        // check for currentMapPoint
+                        final Graphic graphic = new Graphic(currentMapPt, sms);
+                        originalgraphicsLayer.addGraphic(graphic);
+                        // set parameters graphic and query url
+                        try {
+                            getClosestFacility(graphic);
+                        } catch (Exception e) {
+                            Log.e("Error",e.toString());
+                        }
+
                     }
             }
             mLocDispMgr.setAutoPanMode(LocationDisplayManager.AutoPanMode.OFF);
@@ -1228,8 +1336,10 @@ public class MainActivity extends AppCompatActivity {
                     redZone.removeAll();
                     polygon = new Polygon();
                     polygon.startPath(points.get(0));
+                    Log.d("p1",points.get(0)+"");
                     for (int i = 1; i < points.size(); i++) {
                         polygon.lineTo(points.get(i));
+                        Log.d("p"+i,points.get(i)+"");
                     }
                     SimpleFillSymbol simpleFillSymbol = new SimpleFillSymbol(
                             Color.RED);
