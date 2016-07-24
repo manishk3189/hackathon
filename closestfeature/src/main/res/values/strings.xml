@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">ClosestFeature</string>
-    <string name="feature_service_url">http://supt001987.esri.com:6080/arcgis/rest/services/FinalSandiegoParking/FeatureServer</string>
+    <!--<string name="feature_service_url">http://supt001987.esri.com:6080/arcgis/rest/services/FinalSandiegoParking/FeatureServer</string>-->
+    <string name="feature_service_url">http://services6.arcgis.com/it9JQBuyF0VsUnw3/ArcGIS/rest/services/sandiegoparking/FeatureServer</string>
+
 
     <string name="parking_field_name">isAvailable</string>
     <string name="suggestion_text">Suggestion</string>
