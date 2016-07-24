@@ -411,6 +411,7 @@ public class RoutingSample extends Activity implements
 		// Reset the selected segment
 		selectedSegmentID = -1;
 
+
 		// Add the full route graphics, start and destination graphic to the
 		// routeLayer
 		Graphic routeGraphic = new Graphic(curRoute.getRouteGraphic()

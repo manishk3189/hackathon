@@ -243,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
     private LocationManager locationManager;
     private String provider;
     List<String> providerList = null;
-    int notifTimes = 0;
+    //int notifTimes = 0;
     GraphicsLayer graphicsLayer;
 
     private Locator mLocator;
@@ -287,7 +287,7 @@ public class MainActivity extends AppCompatActivity {
     RouteResult mResults = null;
     // Variable to hold server exception to show to user
     Exception mException = null;
-    SimpleLineSymbol segmentHider = new SimpleLineSymbol(Color.WHITE, 5);
+    SimpleLineSymbol segmentHider = new SimpleLineSymbol(Color.BLUE, 5);
     // Symbol used to highlight route segments
     SimpleLineSymbol segmentShower = new SimpleLineSymbol(Color.RED, 5);
     private static boolean suggestClickFlag = false;
@@ -296,6 +296,7 @@ public class MainActivity extends AppCompatActivity {
     private SpatialReference mapSpatialReference;
     private static ArrayList<LocatorSuggestionResult> suggestionsList;
     static UserCredentials credentials;
+    int notifTimes = 0;
 
     //Speech
 
@@ -337,7 +338,7 @@ public class MainActivity extends AppCompatActivity {
         //speech
         txtSpeechInput = (TextView) findViewById(R.id.txtSpeechInput);
         btnSpeak = (ImageButton) findViewById(R.id.btnSpeak);
-
+        setUpBufferAroundParking();
 
         mMapViewHelper = new MapViewHelper(mMapView);
 
@@ -381,6 +382,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
         //get the credentials
         credentials = getCred();
 
@@ -403,7 +406,7 @@ public class MainActivity extends AppCompatActivity {
         mMapView.addLayer(hiddenSegmentsLayer);
 
         // Make the segmentHider symbol "invisible"
-        segmentHider.setAlpha(1);
+        segmentHider.setAlpha(50);
         MyOnSingleTapListener listener = new MyOnSingleTapListener(this);
         mMapView.setOnSingleTapListener(listener);
 
@@ -567,6 +570,27 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
 
             }
         });*/
+    }
+
+    private void setUpBufferAroundParking() {
+        points.add(new Point(-117.15560782833943, 32.71139704391625));
+        points.add(new Point(-117.15601027497712, 32.70421791518589));
+        points.add(new Point(-117.16455252941577, 32.70395827219383));
+        points.add(new Point(-117.16476024380943, 32.711319151018635));
+
+        redZone.removeAll();
+        polygon = new Polygon();
+        polygon.startPath(points.get(0));
+        Log.d("pt1",points.get(0).toString());
+        for (int i = 1; i < points.size(); i++) {
+            polygon.lineTo(points.get(i));
+            Log.d("pt"+i,points.get(i).toString());
+        }
+        SimpleFillSymbol simpleFillSymbol = new SimpleFillSymbol(
+                Color.RED);
+        simpleFillSymbol.setAlpha(1);
+        Graphic graphic_polygon = new Graphic(polygon, (simpleFillSymbol));
+        redZone.addGraphic(graphic_polygon);
     }
 
     //Speech
@@ -746,6 +770,11 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
             mProgressDialog.dismiss();
             if (resultPoint == null)
                 return;
+
+            SimpleMarkerSymbol startSymbol = new SimpleMarkerSymbol(Color.DKGRAY,
+                    15, SimpleMarkerSymbol.STYLE.CIRCLE);
+            Graphic gStart = new Graphic(currentMapPt, startSymbol);
+            routeLayer.addGraphic(gStart);
 
             QueryDirections(currentMapPt,resultPoint);
             // Display the result
@@ -990,7 +1019,7 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
         // Symbols for the route and the destination (blue line, checker flag)
         //SimpleLineSymbol routeSymbol = new SimpleLineSymbol(Color.BLUE, 3);
         PictureMarkerSymbol destinationSymbol = new PictureMarkerSymbol(
-                mMapView.getContext(), getResources().getDrawable(
+                getApplicationContext(), getResources().getDrawable(
                 R.drawable.ic_action_place));
 
         // Add all the route segments with their relevant information to the
@@ -1004,6 +1033,7 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
             attribs.put("length", Double.valueOf(rd.getLength()));
             Graphic routeGraphic = new Graphic(rd.getGeometry(), segmentHider,
                     attribs);
+            originalgraphicsLayer.addGraphic(routeGraphic);
             hiddenSegmentsLayer.addGraphic(routeGraphic);
         }
         // Reset the selected segment
@@ -1016,9 +1046,13 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
         Graphic endGraphic = new Graphic(
                 ((Polyline) routeGraphic.getGeometry()).getPoint(((Polyline) routeGraphic
                         .getGeometry()).getPointCount() - 1), destinationSymbol);
+        Log.d("Graphic",routeGraphic.getGeometry().getType().name());
+        Log.d("Graphic",routeGraphic.toString());
+        originalgraphicsLayer.addGraphic(endGraphic);
         routeLayer.addGraphics(new Graphic[]{routeGraphic, endGraphic});
         //originalgraphicsLayer = new GraphicsLayer();
         //mMapView.addLayer(originalgraphicsLayer);
+
 
         originalgraphicsLayer.addGraphic(new Graphic(curRoute.getRouteGraphic().getGeometry(), routeSymbol));
 
@@ -1063,7 +1097,7 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
     public void onClick_NavButton(View view) {
         if (mLocDispMgr != null) {
             // Re-enable the navigation mode.
-            notifTimes = 0;
+
 
             Toast.makeText(MainActivity.this,"I gotcha", Toast.LENGTH_SHORT).show();
             mLocDispMgr.start();
@@ -1109,7 +1143,7 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
             Polygon buffer = GeometryEngine.buffer(currentPt,SpatialReference.create(4326),0.0033,Unit.create(AngularUnit.Code.DEGREE));
             SimpleFillSymbol simpleFillSymbol = new SimpleFillSymbol(
                     Color.RED);
-            simpleFillSymbol.setAlpha(50);
+            simpleFillSymbol.setAlpha(1);
             Graphic polygon = new Graphic(buffer, (simpleFillSymbol));
             currentLocation.addGraphic(polygon);
             mMapView.addLayer(currentLocation);
@@ -1118,12 +1152,13 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
                 if (GeometryEngine.intersects(buffer,redZone.getGraphic(redZone.getGraphicIDs()[0]).getGeometry(),SpatialReference.create(4326)))
                     if(notifTimes == 0)
                     {
+                        notifTimes++;
                         final SimpleMarkerSymbol sms = new SimpleMarkerSymbol(
                                 Color.BLACK, 13, SimpleMarkerSymbol.STYLE.DIAMOND);
                         // set start location
                         // create graphic
                         // check for currentMapPoint
-                        final Graphic graphic = new Graphic(currentPt, sms);
+                        final Graphic graphic = new Graphic(currentMapPt, sms);
                         originalgraphicsLayer.addGraphic(graphic);
                         // set parameters graphic and query url
                         try {
@@ -1220,7 +1255,8 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
                         polyline.lineTo(points.get(i));
 
                     }
-                    Graphic graphic_line = new Graphic(polyline, new SimpleLineSymbol(Color.BLACK, 1));
+                    Graphic graphic_line = new Graphic(polyline, new SimpleLineSymbol(Color.TRANSPARENT, 1));
+
                     redZone.addGraphic(graphic_line);
                 }
 
@@ -1228,16 +1264,18 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
                     redZone.removeAll();
                     polygon = new Polygon();
                     polygon.startPath(points.get(0));
+                    Log.d("pt1",points.get(0).toString());
                     for (int i = 1; i < points.size(); i++) {
                         polygon.lineTo(points.get(i));
+                        Log.d("pt"+i,points.get(i).toString());
                     }
                     SimpleFillSymbol simpleFillSymbol = new SimpleFillSymbol(
                             Color.RED);
-                    simpleFillSymbol.setAlpha(50);
+                    simpleFillSymbol.setAlpha(1);
                     Graphic graphic_polygon = new Graphic(polygon, (simpleFillSymbol));
                     redZone.addGraphic(graphic_polygon);
+
                     Graphic a = redZone.getGraphic(redZone.getGraphicIDs()[0]);
-                    int b =9;
                 }return true;
             }
             return false;
@@ -1656,13 +1694,23 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
                     }
 
                 }
-                Graphic[] facilityGraphics = new Graphic[trueFeatures.size()];
+                /*Graphic[] facilityGraphics = new Graphic[trueFeatures.size()];
                 int i = 0;
                 for(Feature f : trueFeatures) {
                     facilityGraphics[i] = new Graphic(f.getGeometry(),availableParkingSymbol);
                     i++;
                 }
-                Log.d("count-",i+"");
+                Log.d("count-",i+"");*/
+                //Log.d("count-",i+"");*/
+                Graphic[] facilityGraphics = {
+                        new Graphic(GeometryEngine.project(-117.138368, 32.708657, mMapView.getSpatialReference()), availableParkingSymbol),
+                        new Graphic(GeometryEngine.project(-117.163369, 32.724766, mMapView.getSpatialReference()), notAvailableParkingSymbol),
+                        new Graphic(GeometryEngine.project(-117.159477, 32.735328, mMapView.getSpatialReference()), availableParkingSymbol),
+                        new Graphic(GeometryEngine.project(-117.159918, 32.751387, mMapView.getSpatialReference()), notAvailableParkingSymbol),
+                        new Graphic(GeometryEngine.project(-117.144708, 32.755919, mMapView.getSpatialReference()), availableParkingSymbol),
+                        new Graphic(GeometryEngine.project(-117.201550, 32.752967, mMapView.getSpatialReference()), notAvailableParkingSymbol),
+                        new Graphic(GeometryEngine.project(-117.221417, 32.748656, mMapView.getSpatialReference()), availableParkingSymbol)
+                };
 
                 // add them to the graphics layer for display and to our 'facilities' collection for the task
                 originalgraphicsLayer.addGraphics(facilityGraphics);
