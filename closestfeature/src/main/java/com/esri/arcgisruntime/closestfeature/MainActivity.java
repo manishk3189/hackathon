@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
                 mProgressDialog.dismiss();
             }
         };
-        FEATURE_SERVICE_URL = getResources().getString(R.string.feature_service_url);
+        FEATURE_SERVICE_URL = getResources().getString(R.string.feature_service_esri_parking);
         // Set the Esri logo to be visible, and enable map to wrap around date line.
         mMapView.setEsriLogoVisible(true);
         mMapView.enableWrapAround(false);
@@ -255,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
         //speech
         txtSpeechInput = (TextView) findViewById(R.id.txtSpeechInput);
         btnSpeak = (ImageButton) findViewById(R.id.btnSpeak);
-        setUpBufferAroundParking();
+        //setUpBufferAroundParking();
 
         mMapViewHelper = new MapViewHelper(mMapView);
 
@@ -387,7 +387,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        /*mFeatureServiceURL = this.getResources().getString(R.string.feature_service_url);
+       /* mFeatureServiceURL = this.getResources().getString(R.string.feature_service_esri_parking);
         // Add Feature layer to the MapView
         mFeatureLayer = new ArcGISFeatureLayer(mFeatureServiceURL, ArcGISFeatureLayer.MODE.ONDEMAND);
         mMapView.addLayer(mFeatureLayer);*/
@@ -400,7 +400,7 @@ public class MainActivity extends AppCompatActivity {
 
         Point sanDiegoCenter = GeometryEngine.project(-117.1750, 32.727, mMapView.getSpatialReference());
         //mMapView.setExtent(mCurrentMapExtent);
-        mMapView.setExtent(new Envelope(sanDiegoCenter,10000,10000));
+        //mMapView.setExtent(new Envelope(sanDiegoCenter,10000,10000));
         // create some facility graphics
         originalgraphicsLayer = new GraphicsLayer();
         mMapView.addLayer(originalgraphicsLayer);
@@ -427,7 +427,7 @@ public class MainActivity extends AppCompatActivity {
                     notAvailableParkingSymbol = createFacilitySymbol(2);
                     incidentSymbol = new SimpleMarkerSymbol(Color.BLACK, 18, SimpleMarkerSymbol.STYLE.CROSS);
                     routeSymbol = new SimpleLineSymbol(Color.BLUE, 2.0f);
-                    Point sanDiegoCenter = GeometryEngine.project(-117.1750, 32.727, mMapView.getSpatialReference());
+                    Point sanDiegoCenter = GeometryEngine.project(-117.1750, 34.727, mMapView.getSpatialReference());
                     //mMapView.setExtent(mCurrentMapExtent);
                     mMapView.setExtent(new Envelope(sanDiegoCenter,10000,10000));
                     mapSpatialReference = mMapView.getSpatialReference();
@@ -435,6 +435,39 @@ public class MainActivity extends AppCompatActivity {
                     mLocDispMgr = mMapView.getLocationDisplayManager();
                     mLocDispMgr.setAutoPanMode(LocationDisplayManager.AutoPanMode.LOCATION);
                     mLocDispMgr.setLocationListener(mLocationListener);
+                    createFLfromURL();
+
+                    Graphic[] facilityGraphics = {
+
+                            new Graphic(GeometryEngine.project(-117.196016, 34.059231, mMapView.getSpatialReference()), availableParkingSymbol),
+                            new Graphic(GeometryEngine.project(-117.196793, 34.059244, mMapView.getSpatialReference()), availableParkingSymbol)
+                       /* new Graphic(GeometryEngine.project(-117.163369, 32.724766, mMapView.getSpatialReference()), notAvailableParkingSymbol),
+                        new Graphic(GeometryEngine.project(-117.159477, 32.735328, mMapView.getSpatialReference()), availableParkingSymbol),
+                        new Graphic(GeometryEngine.project(-117.159918, 32.751387, mMapView.getSpatialReference()), notAvailableParkingSymbol),
+                        new Graphic(GeometryEngine.project(-117.144708, 32.755919, mMapView.getSpatialReference()), availableParkingSymbol),
+                        new Graphic(GeometryEngine.project(-117.201550, 32.752967, mMapView.getSpatialReference()), notAvailableParkingSymbol),
+                        new Graphic(GeometryEngine.project(-117.221417, 32.748656, mMapView.getSpatialReference()), availableParkingSymbol)*/
+                    };
+                    //Log.d("count-",i+"");
+
+                    // add them to the graphics layer for display and to our 'facilities' collection for the task
+                    originalgraphicsLayer.addGraphics(facilityGraphics);
+                    facilities.addFeatures(facilityGraphics);
+
+                    /*Graphic[] facilityGraphics = {
+                            new Graphic(GeometryEngine.project(-117.138368, 32.708657, mMapView.getSpatialReference()), availableParkingSymbol),
+                            new Graphic(GeometryEngine.project(-117.163369, 32.724766, mMapView.getSpatialReference()), notAvailableParkingSymbol),
+                            new Graphic(GeometryEngine.project(-117.159477, 32.735328, mMapView.getSpatialReference()), availableParkingSymbol),
+                            new Graphic(GeometryEngine.project(-117.159918, 32.751387, mMapView.getSpatialReference()), notAvailableParkingSymbol),
+                            new Graphic(GeometryEngine.project(-117.144708, 32.755919, mMapView.getSpatialReference()), availableParkingSymbol),
+                            new Graphic(GeometryEngine.project(-117.201550, 32.752967, mMapView.getSpatialReference()), notAvailableParkingSymbol),
+                            new Graphic(GeometryEngine.project(-117.221417, 32.748656, mMapView.getSpatialReference()), availableParkingSymbol)
+                    };*/
+                    //Log.d("count-",i+"");
+
+                    // add them to the graphics layer for display and to our 'facilities' collection for the task
+                    /*originalgraphicsLayer.addGraphics(facilityGraphics);
+                    facilities.addFeatures(facilityGraphics);*/
                     /*mLocDispMgr = mMapView.getLocationDisplayManager();
                     mLocDispMgr.setAutoPanMode(LocationDisplayManager.AutoPanMode.LOCATION);
                     mLocDispMgr.setLocationListener(mLocationListener);*/
@@ -490,7 +523,7 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
         });*/
     }
 
-    private void setUpBufferAroundParking() {
+    /*private void setUpBufferAroundParking() {
         Log.d("here","here");
         points.add(new Point(-117.15560782833943, 32.71139704391625));
         points.add(new Point(-117.15601027497712, 32.70421791518589));
@@ -510,8 +543,9 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
         simpleFillSymbol.setAlpha(1);
         Graphic graphic_polygon = new Graphic(polygon, (simpleFillSymbol));
         redZone.addGraphic(graphic_polygon);
+        //originalgraphicsLayer.addGraphic(graphic_polygon);
         save();
-    }
+    }*/
 
     //Speech
     /**
@@ -983,7 +1017,7 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
                 curRoute.getRouteName(), curRoute.getTotalMinutes(),
                 curRoute.getTotalMiles());
 
-        mMapView.setExtent(curRoute.getEnvelope(), 250);
+        mMapView.setExtent(curRoute.getEnvelope(), 10);
 
     }
 
@@ -1019,13 +1053,14 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
             // Re-enable the navigation mode.
 
 
-            Toast.makeText(MainActivity.this,"I gotcha", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(MainActivity.this,"I gotcha", Toast.LENGTH_SHORT).show();
             mLocDispMgr.start();
             mLocDispMgr.setAutoPanMode(LocationDisplayManager.AutoPanMode.LOCATION);
             Graphic a = redZone.getGraphic(0);
             Point point = mLocDispMgr.getPoint();
-            mMapView.zoomTo(point,20);
-            Polygon buffer = GeometryEngine.buffer(point,SpatialReference.create(4326),0.0033,Unit.create(AngularUnit.Code.DEGREE));
+            //mMapView.setExtent(point,1,true);
+            mMapView.zoomTo(point,200);
+            Polygon buffer = GeometryEngine.buffer(point,SpatialReference.create(4326),0.0003,Unit.create(AngularUnit.Code.DEGREE));
             if (redZone.getNumberOfGraphics () != 0)
             {
                 if (GeometryEngine.intersects(buffer,redZone.getGraphic(redZone.getGraphicIDs()[0]).getGeometry(),SpatialReference.create(4326)))
@@ -1060,7 +1095,7 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
             Point currentPt = new Point(location.getLongitude(), location.getLatitude());
             currentMapPt = (Point) GeometryEngine.project(currentPt,
                     SpatialReference.create(4326), mMapView.getSpatialReference());
-            Polygon buffer = GeometryEngine.buffer(currentPt,SpatialReference.create(4326),0.0033,Unit.create(AngularUnit.Code.DEGREE));
+            Polygon buffer = GeometryEngine.buffer(currentPt,SpatialReference.create(4326),0.0003,Unit.create(AngularUnit.Code.DEGREE));
             SimpleFillSymbol simpleFillSymbol = new SimpleFillSymbol(
                     Color.RED);
             simpleFillSymbol.setAlpha(1);
@@ -1606,7 +1641,7 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
                 // Iterate the results and select each feature.
                 for (Object objFeature : objs) {
                     Feature feature = (Feature) objFeature;
-                    String val = String.valueOf(feature.getAttributeValue("IsAvailable"));
+                    String val = String.valueOf(feature.getAttributeValue("isAvailable"));
                     Log.d("val-",val);
                     if(val.equalsIgnoreCase("true")) {
                         featureLayer.selectFeature(feature.getId());
@@ -1617,19 +1652,40 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
 
                 }
 
-                Graphic[] facilityGraphics = new Graphic[trueFeatures.size()];
+                //Graphic[] facilityGraphics = new Graphic[trueFeatures.size()];
                 int i = 0;
-                for(Feature f : trueFeatures) {
+                /*for(Feature f : trueFeatures) {
                     Geometry g = f.getGeometry();
-                    facilityGraphics[i] = new Graphic(f.getGeometry(),availableParkingSymbol);
+                    Geometry newGeom = GeometryEngine.project(g,SpatialReference.create(102100),mMapView.getSpatialReference());
+                    facilityGraphics[i] = new Graphic(newGeom,availableParkingSymbol);
                     //facilityGraphics[i] = new Graphic(GeometryEngine.project(f,availableParkingSymbol);
                     i++;
-                }
-                Log.d("count-",i+"");
+                }*/
+                /**
+                 *
+                 Point [m_attributes=[-117.19736922756061, 34.05933302657831]
+                 Point [m_attributes=[-117.19727747267876, 34.058877310665146]
+                 Point [m_attributes=[-117.1959072664432, 34.058904837129695]
+                 Point [m_attributes=[-117.19591644193139, 34.05942172296409]
+                 */
+                //34.059231, -117.196016 34.059244, -117.196793
+                Graphic[] facilityGraphics = {
+
+                        new Graphic(GeometryEngine.project(-117.196016, 34.059231, mMapView.getSpatialReference()), availableParkingSymbol),
+                        new Graphic(GeometryEngine.project(-117.196793, 34.059244, mMapView.getSpatialReference()), availableParkingSymbol)
+                       /* new Graphic(GeometryEngine.project(-117.163369, 32.724766, mMapView.getSpatialReference()), notAvailableParkingSymbol),
+                        new Graphic(GeometryEngine.project(-117.159477, 32.735328, mMapView.getSpatialReference()), availableParkingSymbol),
+                        new Graphic(GeometryEngine.project(-117.159918, 32.751387, mMapView.getSpatialReference()), notAvailableParkingSymbol),
+                        new Graphic(GeometryEngine.project(-117.144708, 32.755919, mMapView.getSpatialReference()), availableParkingSymbol),
+                        new Graphic(GeometryEngine.project(-117.201550, 32.752967, mMapView.getSpatialReference()), notAvailableParkingSymbol),
+                        new Graphic(GeometryEngine.project(-117.221417, 32.748656, mMapView.getSpatialReference()), availableParkingSymbol)*/
+                };
+                //Log.d("count-",i+"");
 
                 // add them to the graphics layer for display and to our 'facilities' collection for the task
                 originalgraphicsLayer.addGraphics(facilityGraphics);
                 facilities.addFeatures(facilityGraphics);
+                mLocDispMgr.setAutoPanMode(LocationDisplayManager.AutoPanMode.NAVIGATION);
                 if(dialog.isShowing()) {
                     dialog.dismiss();
                 }

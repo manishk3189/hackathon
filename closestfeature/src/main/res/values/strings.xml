@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name">ClosestFeature</string>
-    <string name="feature_service_url">http://supt001987/arcgisserver/rest/services/FinalSandiegoParking/FeatureServer</string>
-    <!--<string name="feature_service_url">http://services6.arcgis.com/it9JQBuyF0VsUnw3/ArcGIS/rest/services/sandiegoparking/FeatureServer</string>-->
+    <string name="app_name">Peter Parker</string>
+    <!--<string name="feature_service_url">http://supt001987/arcgisserver/rest/services/FinalSandiegoParking/FeatureServer</string>-->
+    <string name="feature_service_esri_parking">https://services6.arcgis.com/it9JQBuyF0VsUnw3/arcgis/rest/services/Esri_Parking_Auto/FeatureServer</string>
 
 
-    <string name="parking_field_name">IsAvailable</string>
+    <string name="parking_field_name">isAvailable</string>
 
     <string name="search_hint">Search address or place</string>
     <string name="search_title">Search</string>

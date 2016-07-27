@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:https="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
@@ -8,7 +9,8 @@
     <com.esri.android.map.MapView
         android:id="@+id/map"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        url="https://www.arcgis.com/home/webmap/viewer.html?webmap=c9f1658ee3234f4b906baca56d26c492&amp;extent=-117.2022,34.056,-117.1913,34.0614">
     </com.esri.android.map.MapView>
 
     <ImageButton
