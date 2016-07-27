@@ -338,7 +338,7 @@ public class MainActivity extends AppCompatActivity {
         //speech
         txtSpeechInput = (TextView) findViewById(R.id.txtSpeechInput);
         btnSpeak = (ImageButton) findViewById(R.id.btnSpeak);
-        setUpBufferAroundParking();
+        //setUpBufferAroundParking();
 
         mMapViewHelper = new MapViewHelper(mMapView);
 
@@ -1105,7 +1105,7 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
             Graphic a = redZone.getGraphic(0);
             Point point = mLocDispMgr.getPoint();
             mMapView.zoomTo(point,20);
-            Polygon buffer = GeometryEngine.buffer(point,SpatialReference.create(4326),0.0033,Unit.create(AngularUnit.Code.DEGREE));
+            Polygon buffer = GeometryEngine.buffer(point,SpatialReference.create(4326),0.0003,Unit.create(AngularUnit.Code.DEGREE));
             if (redZone.getNumberOfGraphics () != 0)
             {
                 if (GeometryEngine.intersects(buffer,redZone.getGraphic(redZone.getGraphicIDs()[0]).getGeometry(),SpatialReference.create(4326)))
@@ -1140,7 +1140,7 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
             Point currentPt = new Point(location.getLongitude(), location.getLatitude());
             currentMapPt = (Point) GeometryEngine.project(currentPt,
                     SpatialReference.create(4326), mMapView.getSpatialReference());
-            Polygon buffer = GeometryEngine.buffer(currentPt,SpatialReference.create(4326),0.0033,Unit.create(AngularUnit.Code.DEGREE));
+            Polygon buffer = GeometryEngine.buffer(currentPt,SpatialReference.create(4326),0.0006,Unit.create(AngularUnit.Code.DEGREE));
             SimpleFillSymbol simpleFillSymbol = new SimpleFillSymbol(
                     Color.RED);
             simpleFillSymbol.setAlpha(1);
@@ -1158,9 +1158,13 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
                         // set start location
                         // create graphic
                         // check for currentMapPoint
+                        mProgressDialog.show();
                         final Graphic graphic = new Graphic(currentMapPt, sms);
                         originalgraphicsLayer.addGraphic(graphic);
                         // set parameters graphic and query url
+                        if(mProgressDialog.isShowing()) {
+                            mProgressDialog.dismiss();
+                        }
                         try {
                             getClosestFacility(graphic);
                         } catch (Exception e) {
@@ -1680,7 +1684,7 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
                 ArrayList<Feature> trueFeatures = new ArrayList<Feature>();
 
                 // Report number of results to user.
-                showToast("Found " + objs.featureCount() + " features.");
+                //showToast("Found " + objs.featureCount() + " features.");
 
                 // Iterate the results and select each feature.
                 for (Object objFeature : objs) {
@@ -1703,13 +1707,13 @@ mMapView.setOnLongPressListener(new OnLongPressListener() {
                 Log.d("count-",i+"");*/
                 //Log.d("count-",i+"");*/
                 Graphic[] facilityGraphics = {
-                        new Graphic(GeometryEngine.project(-117.138368, 32.708657, mMapView.getSpatialReference()), availableParkingSymbol),
-                        new Graphic(GeometryEngine.project(-117.163369, 32.724766, mMapView.getSpatialReference()), notAvailableParkingSymbol),
-                        new Graphic(GeometryEngine.project(-117.159477, 32.735328, mMapView.getSpatialReference()), availableParkingSymbol),
-                        new Graphic(GeometryEngine.project(-117.159918, 32.751387, mMapView.getSpatialReference()), notAvailableParkingSymbol),
+                        new Graphic(GeometryEngine.project(-117.15920627, 32.70793668, mMapView.getSpatialReference()), availableParkingSymbol)
+                        /*new Graphic(GeometryEngine.project(-117.15923443, 32.70821315, mMapView.getSpatialReference()), availableParkingSymbol),
+                        new Graphic(GeometryEngine.project(-117.15923578, 32.70818269, mMapView.getSpatialReference()), availableParkingSymbol)*/
+                        /*new Graphic(GeometryEngine.project(-117.159918, 32.751387, mMapView.getSpatialReference()), notAvailableParkingSymbol),
                         new Graphic(GeometryEngine.project(-117.144708, 32.755919, mMapView.getSpatialReference()), availableParkingSymbol),
                         new Graphic(GeometryEngine.project(-117.201550, 32.752967, mMapView.getSpatialReference()), notAvailableParkingSymbol),
-                        new Graphic(GeometryEngine.project(-117.221417, 32.748656, mMapView.getSpatialReference()), availableParkingSymbol)
+                        new Graphic(GeometryEngine.project(-117.221417, 32.748656, mMapView.getSpatialReference()), availableParkingSymbol)*/
                 };
 
                 // add them to the graphics layer for display and to our 'facilities' collection for the task
